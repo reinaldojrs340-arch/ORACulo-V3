@@ -119,4 +119,4 @@ if st.button("🚀 ¡ECHALE PICHÓN Y CALCULA!"):
 st.divider()
 st.caption("© 2026 Oráculo Super Gana - Orgullo Venezolano 🇻🇪")
 
-¡Espero que esta nueva imagen corporativa y visual de tu Web App te guste mucho más! Avísame cuando la actualices en GitHub para que veas el cambio. ¡Mucha suerte con el Super Gana hoy! 💪🏾🚀
+
