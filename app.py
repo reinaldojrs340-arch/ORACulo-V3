@@ -1,23 +1,23 @@
 import streamlit as st
 import random, datetime, pytz, time
 
-# 1. SETUP Y ESTILO PROFESIONAL
-st.set_page_config(page_title="Oráculo V8.5 - Modo Seguimiento", layout="wide")
+# 1. CONFIGURACIÓN Y ESTILO DRIP ROBUSTO
+st.set_page_config(page_title="Oráculo Multi-Sorteo V9", layout="wide")
 vztz = pytz.timezone('America/Caracas')
 ahora = datetime.datetime.now(vztz)
 
 st.markdown("""
 <style>
-    .stApp { background-color: #0b1117; color: #e6edf3; }
+    .stApp { background-color: #0b0e14; color: #e6edf3; }
     .stButton>button {
-        background: linear-gradient(90deg, #00d4ff, #0050ff) !important;
-        color: white !important; font-weight: 900 !important;
-        border-radius: 12px !important; height: 3em !important; width: 100% !important;
+        background: linear-gradient(90deg, #ffcc00, #ff9900) !important;
+        color: #000 !important; font-weight: bold !important;
+        border-radius: 10px !important; width: 100% !important;
     }
-    .status-past { background: #1c2128; border: 1px solid #30363d; padding: 15px; border-radius: 10px; opacity: 0.6; }
-    .status-future { background: #161b22; border: 2px solid #00d4ff; padding: 15px; border-radius: 15px; text-align: center; box-shadow: 0 0 15px rgba(0, 212, 255, 0.1); }
-    .neon-blue { color: #00d4ff; text-shadow: 0 0 5px rgba(0,212,255,0.5); font-weight: bold; }
-    .res-val { font-size: 45px; font-weight: 900; color: #ffffff; }
+    .card-lotto { border-left: 5px solid #ffcc00; background: #161b22; padding: 15px; border-radius: 10px; margin-bottom: 10px; }
+    .card-super { border-left: 5px solid #00d4ff; background: #161b22; padding: 15px; border-radius: 10px; margin-bottom: 10px; }
+    .neon-gold { color: #ffcc00; font-weight: 900; font-size: 25px; }
+    .neon-blue { color: #00d4ff; font-weight: 900; font-size: 25px; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -31,67 +31,70 @@ animalitos = {
     "35": "Jirafa", "36": "Culebra"
 }
 
-# 2. MOTOR DE PREDICCIÓN EN CADENA
-def generar_cadena_pendiente(ultimo_res, tipo):
-    random.seed(sum(ord(c) for c in str(ultimo_res)) + int(ahora.strftime("%d%m")))
-    pendientes = ["4pm", "5pm", "6pm", "7pm", "10pm"]
+# 2. MOTORES DE CÁLCULO
+def motor_lotto_activo(dato_base):
+    # Sorteos cada hora de 9am a 7pm + 10pm (Total 11 sorteos)
+    horas = ["9am", "10am", "11am", "12pm", "1pm", "3pm", "4pm", "5pm", "6pm", "7pm", "10pm"]
+    random.seed(sum(ord(c) for c in str(dato_base)) + int(ahora.strftime("%d")))
     resultados = {}
-    
-    for hora in pendientes:
-        if tipo == "Animalitos":
-            num = str(random.randint(0, 36))
-            nom = animalitos.get(num, "Ballena" if num=="00" else "Animal")
-            resultados[hora] = f"{num} ({nom})"
-        else: # Super Gana
-            num = "".join([str(random.randint(0, 9)) for _ in range(4)])
-            resultados[hora] = num
-        # Alterar semilla para el siguiente de la cadena
-        random.seed(random.randint(1, 9999))
+    for h in horas:
+        num = str(random.randint(0, 36))
+        resultados[h] = f"{num} - {animalitos.get(num)}"
     return resultados
 
-# 3. INTERFAZ PRÁCTICA
-st.markdown("<h1 style='text-align:center;'>🛡️ ORÁCULO V8.5: PANEL DE PENDIENTES</h1>", unsafe_allow_html=True)
-st.write(f"<p style='text-align:center;'>Sincronizado: Los Barrancos de Fajardo | {ahora.strftime('%H:%M:%S')}</p>", unsafe_allow_html=True)
+def motor_super_gana(dato_base):
+    # Solo 3 sorteos a partir de la 1pm
+    horas = ["1pm", "4pm", "10pm"]
+    random.seed(sum(ord(c) for c in str(dato_base)) + 99)
+    resultados = {}
+    for h in horas:
+        num = "".join([str(random.randint(0, 9)) for _ in range(4)])
+        resultados[h] = num
+    return resultados
 
-with st.container():
-    col1, col2 = st.columns(2)
-    with col1:
-        tipo_juego = st.radio("Tipo de Juego:", ["Animalitos", "Super Gana"], horizontal=True)
-    with col2:
-        ultimo_dato = st.text_input("Resultado de la 1:00 PM:", placeholder="Ej: 2345 o Mono")
+# 3. INTERFAZ
+st.title("🛡️ PANEL INTEGRAL DE SORTEOS")
+st.write(f"Los Barrancos de Fajardo | {ahora.strftime('%d/%m/%Y')}")
 
-if st.button("🔍 CALCULAR SORTEOS RESTANTES"):
-    if ultimo_dato:
-        with st.spinner("Procesando secuencia de cierre..."):
+col_config1, col_config2 = st.columns(2)
+with col_config1:
+    entrada_lotto = st.text_input("Dato semilla para Lotto Activo:", placeholder="Ej: 05 o Perro")
+with col_config2:
+    entrada_super = st.text_input("Dato semilla para Super Gana:", placeholder="Ej: 1234")
+
+if st.button("🔥 GENERAR JORNADA COMPLETA"):
+    if entrada_lotto and entrada_super:
+        with st.spinner("Calculando ciclos X6..."):
             time.sleep(1)
-            predicciones = generar_cadena_pendiente(ultimo_dato, tipo_juego)
+            res_lotto = motor_lotto_activo(entrada_lotto)
+            res_super = motor_super_gana(entrada_super)
             
-            # Mostrar el pasado (informativo)
-            st.markdown("<div class='status-past'>✅ Sorteo 1:00 PM: <b>" + ultimo_dato + "</b> (Completado)</div>", unsafe_allow_html=True)
+            c1, c2 = st.columns(2)
             
-            st.markdown("### ⏳ PROYECCIÓN DE CIERRE (SORTEOS PENDIENTES)")
-            
-            # Mostrar el futuro en columnas
-            cols = st.columns(len(predicciones))
-            for i, (hora, res) in enumerate(predicciones.items()):
-                with cols[i]:
-                    color = "#ff4b2b" if hora == "10pm" else "#00d4ff"
+            with c1:
+                st.subheader("🐾 LOTTO ACTIVO (9AM - 10PM)")
+                for hora, val in res_lotto.items():
+                    color_hora = "#ffcc00" if hora == "10pm" else "#ffffff"
                     st.markdown(f"""
-                    <div class='status-future' style='border-color: {color};'>
-                        <p class='neon-blue' style='color: {color};'>{hora.upper()}</p>
-                        <div class='res-val'>{res.split(' ')[0]}</div>
-                        <small>{res.split(' ')[1] if '(' in res else ''}</small>
+                    <div class='card-lotto'>
+                        <b style='color:{color_hora}'>{hora.upper()}</b><br>
+                        <span class='neon-gold'>{val}</span>
                     </div>
                     """, unsafe_allow_html=True)
             
-            # Botón de compartir consolidado
-            msg = f"https://wa.me/?text=🎯+*PROYECCIÓN+CIERRE+BÚNKER*+%0A📍+Basado+en+1PM:+{ultimo_dato}%0A"
-            for h, r in predicciones.items():
-                msg += f"%0A⏰+{h}:+{r}"
+            with c2:
+                st.subheader("🎰 SUPER GANA (3 SORTEOS)")
+                for hora, val in res_super.items():
+                    st.markdown(f"""
+                    <div class='card-super'>
+                        <b style='color:#00d4ff'>{hora.upper()}</b><br>
+                        <span class='neon-blue'>{val}</span>
+                    </div>
+                    """, unsafe_allow_html=True)
             
-            st.markdown(f"<br><a href='{msg}' style='background:#25d366; color:white; padding:15px; display:block; border-radius:10px; text-decoration:none; text-align:center; font-weight:bold;'>📲 COMPARTIR HOJA DE RUTA EN WHATSAPP</a>", unsafe_allow_html=True)
+            st.balloons()
     else:
-        st.warning("Introduce el resultado de la 1:00 PM para proyectar el resto del día[span_2](start_span)[span_2](end_span).")
+        st.warning("Por favor, llena ambas semillas para calcular.")
 
 st.divider()
-st.caption("© 2026 Sistema de Encadenamiento Probabilístico - Los Barrancos de Fajardo[span_3](start_span)[span_3](end_span).")
+st.caption("Sistema de predicción horaria optimizado - V9")
