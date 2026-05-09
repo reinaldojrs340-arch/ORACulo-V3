@@ -48,7 +48,7 @@ if st.button("GIRAR SLOT"):
 
  iconos = [" ", " ", " ", " "]
 
- resultado = f"{random.choice(iconos)} | {random.choice(iconos)} | 
+ resultado = f"{random.choice(iconos)} | {random.choice(iconos)} 
 
 {random.choice(iconos)}"
 
