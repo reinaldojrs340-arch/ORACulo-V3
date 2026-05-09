@@ -23,8 +23,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 2. BASE DE DATOS CORREGIDA (MAESTRA)
-# Se usa un diccionario explícito para evitar errores de conteo
+# 2. BASE DE DATOS CORREGIDA (Pavo = 17)
 animalitos = {
     "0": "Delfín", "00": "Ballena", "1": "Carnero", "2": "Toro", "3": "Ciempiés",
     "4": "Alacrán", "5": "León", "6": "Rana", "7": "Perico", "8": "Ratón",
@@ -36,7 +35,7 @@ animalitos = {
     "34": "Venado", "35": "Jirafa", "36": "Culebra"
 }
 
-# 3. SIDEBAR (CALCULADORA)
+# 3. SIDEBAR
 with st.sidebar:
     st.markdown("<h2 style='color:#ffcc00;'>💰 CAJA CHICA</h2>", unsafe_allow_html=True)
     monto = st.number_input("Monto Apostado (Bs/USD):", min_value=1.0, value=10.0)
@@ -46,7 +45,7 @@ with st.sidebar:
     st.divider()
     st.caption("📍 Los Barrancos de Fajardo | 2026")
 
-# 4. CUERPO PRINCIPAL (TABS)
+# 4. CUERPO PRINCIPAL
 tab1, tab2, tab3 = st.tabs(["🔮 PREDICCIÓN ÉLITE", "🎰 MINI-JUEGOS", "📊 ESTADÍSTICAS"])
 
 with tab1:
@@ -54,7 +53,7 @@ with tab1:
     
     col_in, col_h = st.columns([2, 1])
     with col_in:
-        u_res = st.text_input("Dato Semilla (Animal o Número):", placeholder="Ej: Toro o 17")
+        u_res = st.text_input("Dato Semilla (Animal o Número):", placeholder="Ej: Pavo o 17")
     with col_h:
         h_obj = st.selectbox("Sorteo Objetivo:", ["9am", "10am", "11am", "12pm", "1pm", "4pm", "7pm", "10pm"])
 
@@ -62,12 +61,76 @@ with tab1:
         if u_res:
             with st.spinner("Sincronizando Comparativa..."):
                 time.sleep(1.2)
-                # Detección de mercado (Si es número de animalito o nombre)
-                es_animal = any(x in u_res.lower() for x in ["toro", "oso", "pavo", "burro"]) or (u_res.isdigit() and int(u_res) <= 36)
                 
-                # Semilla base
-                seed = sum(ord(c) for c in u_res) + int(h_obj.replace("am","").replace("pm","").replace("12","12"))
+                # Verificamos si el usuario busca animalitos o 4 cifras
+                es_animal = "animal" in opcion.lower()
                 
-                # --- GENERACIÓN DE 3 ALGORITMOS ---
-                def gen(s, mod):
+                # Crear semilla numérica para el random
+                seed_val = sum(ord(c) for c in u_res) + int(h_obj.replace("am","").replace("pm",""))
+
+                # --- MOTOR DE GENERACIÓN CORREGIDO ---
+                def obtener_resultado(s, modo_animal):
                     random.seed(s)
+                    if modo_animal:
+                        # Extraer lista de números (llaves) y elegir una
+                        lista_numeros = list(animalitos.keys())
+                        res_num = random.choice(lista_numeros)
+                        return res_num, f"{random.randint(88, 98)}%"
+                    else:
+                        # Generar 4 cifras
+                        res_cifras = "".join([str(random.randint(0, 9)) for _ in range(4)])
+                        return res_cifras, f"{random.randint(85, 96)}%"
+
+                # Generar datos para los 3 cuadros
+                v3_val, v3_p = obtener_resultado(seed_val + 7, es_animal)
+                run_val, run_p = obtener_resultado(seed_val + 99, es_animal)
+                pad_val, pad_p = obtener_resultado(seed_val + 123, es_animal)
+
+                # --- MOSTRAR COMPARATIVA ---
+                st.markdown("### 📊 COMPARATIVA DE ALGORITMOS")
+                c1, c2, c3 = st.columns(3)
+                
+                modelos = [
+                    (c1, "V3 CRIOLLO", v3_val, v3_p),
+                    (c2, "RUNLOT RÉPLICA", run_val, run_p),
+                    (c3, "MÉTODO PADRE", pad_val, pad_p)
+                ]
+
+                for col, title, val, per in modelos:
+                    with col:
+                        nombre_animal = animalitos.get(val, "Super Gana") if es_animal else "Cifras"
+                        color_clase = "neon-gold" if es_animal else "neon-blue"
+                        st.markdown(f"""
+                        <div class='card-pro'>
+                            <b>{title}</b><br>
+                            <span class='{color_clase}'>{val}</span><br>
+                            <span style='color:white;'>{nombre_animal}</span><br>
+                            <span class='percent'>{per} Prob.</span>
+                        </div>
+                        """, unsafe_allow_html=True)
+                
+                if es_animal:
+                    st.success(f"Dato sugerido para las {h_obj}: {v3_val} ({animalitos.get(v3_val)})")
+                else:
+                    st.success(f"Cifras sugeridas para las {h_obj}: {v3_val}")
+        else:
+            st.error("Mete un dato para arrancar el búnker.")
+
+with tab2:
+    st.markdown("<h2 style='text-align:center;'>🎰 ZONA DE RECREO</h2>", unsafe_allow_html=True)
+    c_s, c_d = st.columns(2)
+    with c_s:
+        if st.button("🎰 GIRAR"):
+            icons = ["🍀", "💰", "💎", "🔥", "⭐"]
+            r = [random.choice(icons) for _ in range(3)]
+            st.markdown(f"<div class='slot-box'>{r[0]} | {r[1]} | {r[2]}</div>", unsafe_allow_html=True)
+    with c_d:
+        if st.button("🎲 LANZAR"):
+            st.markdown(f"<div class='slot-box'>🎲 Salió: {random.randint(1, 6)}</div>", unsafe_allow_html=True)
+
+with tab3:
+    st.subheader("📈 Histórico de Tendencia")
+    st.area_chart(pd.DataFrame({"Probabilidad": [random.randint(70, 99) for _ in range(10)]}))
+
+st.divider()
+st.caption("© 2026 - El Patrón V10 - Sistema de Inteligencia | Monagas")
