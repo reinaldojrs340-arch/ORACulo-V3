@@ -2,15 +2,15 @@ import streamlit as st
 
 import random, datetime, pytz, pandas as pd
 
-# 1. CONFIGURACIÓN CORE
+# 1. CONFIGURACION
 
-st.set_page_config(page_title="Oráculo Infinito V5.0", layout="wide")
+st.set_page_config(page_title="Oraculo Infinito V5", layout="wide")
 
 vztz = pytz.timezone('America/Caracas')
 
 ahora = datetime.datetime.now(vztz)
 
-# 2. ESTILOS CSS PROFESIONALES
+# 2. ESTILOS
 
 st.markdown("""
 
@@ -18,100 +18,74 @@ st.markdown("""
 
 .stApp { background-color: #0d1117; color: white; }
 
-.main-card { background: #161b22; border: 1px solid #30363d; padding: 25px; border-radius: 15px; text-align: center; }
+.card { background: #161b22; border: 1px solid #30363d; padding: 20px; border-radius: 10px; text-align: 
 
-.big-num { font-size: 70px; font-weight: bold; color: #ffcc00; margin: 0; }
+center; }
 
-.wa-btn { background: #25d366; color: white !important; padding: 12px; border-radius: 10px; text-decoration: none; display: 
+.num { font-size: 60px; color: #ffcc00; font-weight: bold; }
 
-block; font-weight: bold; text-align: center; margin-top: 10px; }
+.btn-wa { background-color: #25d366; color: white !important; padding: 10px; border-radius: 5px; text-
 
-.slot-box { background: #010409; border: 2px dashed gold; padding: 15px; font-size: 40px; text-align: center; border-radius: 
-
-10px; }
+decoration: none; display: block; margin-top: 10px; }
 
 </style>
 
 """, unsafe_allow_html=True)
 
-# 3. BARRA LATERAL (SIDEBAR)
+# 3. BARRA LATERAL
 
 with st.sidebar:
 
- st.title(" DASHBOARD ÉLITE")
+ st.title(" DASHBOARD")
 
- st.write("---")
+ monto = st.number_input("Inversión", value=10.0)
 
- monto = st.number_input("Monto Jugado:", value=10.0)
+ st.metric("Premio (4C)", f"{monto * 4500:,.2f}")
 
- st.metric("Premio (4 Cifras)", f"{monto * 4500:,.2f}")
+ st.success("SISTEMA ONLINE 24/7")
 
- st.success("ESTADO: ONLINE 24/7")
+# 4. CONTENIDO
 
- st.caption(" Los Barrancos | V5.0")
+t1, t2 = st.tabs([" PREDICCION", " JUEGOS"])
 
-# 4. CUERPO PRINCIPAL
-
-tab1, tab2, tab3 = st.tabs([" PREDICCIÓN", " MINI-JUEGOS", " RIFEROS TV"])
-
-with tab1:
+with t1:
 
  col1, col2 = st.columns([2, 1])
 
  with col1:
 
- st.subheader("Generador de Alta Precisión")
+ st.header("Generador Pro")
 
- u_res = st.text_input("Último Resultado:", value="0504")
+ u_res = st.text_input("Ultimo Resultado:", value="0504")
 
- sorteo = st.selectbox("Sorteo Objetivo:", ["1:00 PM", "4:00 PM", "7:00 PM", "10:00 PM"])
+ sorteo = st.selectbox("Sorteo:", ["1:00 PM", "4:00 PM", "7:00 PM", "10:00 PM"])
 
- if st.button(" CALCULAR JUGADA"):
+ if st.button("CALCULAR"):
 
  random.seed(int(ahora.strftime("%y%m%d") + sorteo[0]))
 
- res = "".join([str((int(d) + random.choice([-1, 0, 1])) % 10) for d in u_res if d.isdigit()])
+ res = "".join([str((int(d) + random.choice([-1, 0, 1])) % 10) for d in u_res if 
 
- st.markdown(f"<div class='main-card'><p class='big-num'>{res}</p><p>CONFIANZA: 98.4%</p></div>", 
+d.isdigit()])
 
-unsafe_allow_html=True)
-
- st.markdown(f"<a href='https://wa.me/?text=Jugada+{sorteo}:+{res}' class='wa-btn'> COMPARTIR EN WHATSAPP</a>", 
+ st.markdown(f"<div class='card'><div class='num'>{res}</div><p>CONFIANZA: 98%</p></div>", 
 
 unsafe_allow_html=True)
 
- st.balloons()
+ st.markdown(f"<a href='https://wa.me/?text=Jugada+{sorteo}:+{res}' class='btn-wa'>WHATSAPP</
+
+a>", unsafe_allow_html=True)
 
  with col2:
 
- st.write("### Inercia de Datos")
+ st.line_chart(pd.DataFrame({'Data': [10, 20, 15, 30]}))
 
- st.line_chart(pd.DataFrame({'Y': [10, 20, 15, 35]}))
-
-with tab2:
-
- st.subheader(" SLOT MACHINE")
+with t2:
 
  if st.button(" GIRAR"):
 
- items = [" ", " ", " ", " ", " "]
+ icons = [" ", " ", " ", " "]
 
- s = f"{random.choice(items)} | {random.choice(items)} | {random.choice(items)}"
+ st.subheader(f"{random.choice(icons)} | {random.choice(icons)} | {random.choice(icons)}")
 
- st.markdown(f"<div class='slot-box'>{s}</div>", unsafe_allow_html=True)
-
- st.divider()
-
- st.subheader(" DADO DE LA SUERTE")
-
- if st.button(" LANZAR"):
-
- st.header(f"Salió: {random.randint(1, 6)}")
-
-with tab3:
-
- st.video("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
-
-st.divider()
-
-st.caption("© 2026 Oráculo Infinito V5.0 - Monagas, Venezuela")
+st.caption("Oraculo Infinito V5.0 - Los Barrancos")
