@@ -1,66 +1,32 @@
 import streamlit as st
 
-import random, datetime, pytz, pandas as pd
+import random
 
-# 1. CONFIGURACION
+import datetime
 
-st.set_page_config(page_title="Oraculo Infinito V5", layout="wide")
+import pytz
+
+# CONFIGURACION BASICA
+
+st.set_page_config(page_title="Oraculo V5", layout="wide")
 
 vztz = pytz.timezone('America/Caracas')
 
 ahora = datetime.datetime.now(vztz)
 
-# 2. ESTILOS
+# INTERFAZ
 
-st.markdown("""
+st.title(" ORÁCULO V5.0 - UNLOCKED")
 
-<style>
+st.write("---")
 
-.stApp { background-color: #0d1117; color: white; }
+# PREDICCION
 
-.card { background: #161b22; border: 1px solid #30363d; padding: 20px; border-radius: 10px; text-align: 
+u_res = st.text_input("Ultimo Resultado (4 cifras):", "0504")
 
-center; }
+sorteo = st.selectbox("Sorteo:", ["1:00 PM", "4:00 PM", "7:00 PM", "10:00 PM"])
 
-.num { font-size: 60px; color: #ffcc00; font-weight: bold; }
-
-.btn-wa { background-color: #25d366; color: white !important; padding: 10px; border-radius: 5px; text-
-
-decoration: none; display: block; margin-top: 10px; }
-
-</style>
-
-""", unsafe_allow_html=True)
-
-# 3. BARRA LATERAL
-
-with st.sidebar:
-
- st.title(" DASHBOARD")
-
- monto = st.number_input("Inversión", value=10.0)
-
- st.metric("Premio (4C)", f"{monto * 4500:,.2f}")
-
- st.success("SISTEMA ONLINE 24/7")
-
-# 4. CONTENIDO
-
-t1, t2 = st.tabs([" PREDICCION", " JUEGOS"])
-
-with t1:
-
- col1, col2 = st.columns([2, 1])
-
- with col1:
-
- st.header("Generador Pro")
-
- u_res = st.text_input("Ultimo Resultado:", value="0504")
-
- sorteo = st.selectbox("Sorteo:", ["1:00 PM", "4:00 PM", "7:00 PM", "10:00 PM"])
-
- if st.button("CALCULAR"):
+if st.button("GENERAR PREDICCION"):
 
  random.seed(int(ahora.strftime("%y%m%d") + sorteo[0]))
 
@@ -68,24 +34,26 @@ with t1:
 
 d.isdigit()])
 
- st.markdown(f"<div class='card'><div class='num'>{res}</div><p>CONFIANZA: 98%</p></div>", 
+ st.subheader(f"NUMERO SUGERIDO: {res}")
 
-unsafe_allow_html=True)
+ st.success("Prediccion generada con exito")
 
- st.markdown(f"<a href='https://wa.me/?text=Jugada+{sorteo}:+{res}' class='btn-wa'>WHATSAPP</
+st.write("---")
 
-a>", unsafe_allow_html=True)
+# MINI JUEGO
 
- with col2:
+st.subheader(" SLOT MINI-GAME")
 
- st.line_chart(pd.DataFrame({'Data': [10, 20, 15, 30]}))
+if st.button("GIRAR SLOT"):
 
-with t2:
+ iconos = [" ", " ", " ", " "]
 
- if st.button(" GIRAR"):
+ resultado = f"{random.choice(iconos)} | {random.choice(iconos)} | 
 
- icons = [" ", " ", " ", " "]
+{random.choice(iconos)}"
 
- st.subheader(f"{random.choice(icons)} | {random.choice(icons)} | {random.choice(icons)}")
+ st.header(resultado)
 
-st.caption("Oraculo Infinito V5.0 - Los Barrancos")
+st.divider()
+
+st.caption("Oraculo Infinito V5.0 - Monagas")
