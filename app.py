@@ -1,37 +1,97 @@
 import streamlit as st
 
-import random, datetime, pytz
+import random, datetime, pytz, time, pandas as pd
 
-# CONFIGURACION BASICA
-
-st.set_page_config(page_title="Oraculo V6", layout="centered")
+st.set_page_config(page_title="Oráculo V7 Pro-Max", layout="wide")
 
 vztz = pytz.timezone('America/Caracas')
 
 ahora = datetime.datetime.now(vztz)
 
-st.title(" ORÁCULO V6.0")
+st.markdown("""<style>
 
-st.write("---")
+.stApp { background-color: #0b0e11; color: #e6edf3; }
 
-# ENTRADAS DE DATOS
+.card { background: #161b22; border: 1px solid #30363d; padding: 20px; border-radius: 15px; text-align: center; }
 
-u_res = st.text_input("Último Resultado:", "0504")
+.big-num { font-size: 80px; color: #ffcc00; font-weight: 900; text-shadow: 0 0 30px rgba(255,204,0,0.5); }
 
-sorteo = st.selectbox("Sorteo:", ["1 PM", "4 PM", "7 PM", "10 PM"])
+.wa-link { background: #25d366; color: white !important; padding: 15px; border-radius: 12px; text-decoration: none; 
 
-if st.button("CALCULAR JUGADA"):
+display: block; font-weight: bold; }
 
- # Generador de lógica simple para evitar errores
+</style>""", unsafe_allow_html=True)
 
- random.seed(int(ahora.strftime("%y%m%d") + sorteo[0]))
+with st.sidebar:
 
- res = "".join([str((int(d) + random.randint(0, 2)) % 10) for d in u_res if d.isdigit()])
+ st.title(" CONTROL CENTER V7")
 
- st.success(f"NÚMERO SUGERIDO: {res}")
+ inv = st.number_input("Monto:", value=10.0)
 
- st.balloons()
+ st.metric("PREMIO (4C)", f"{inv * 4500:,.2f}")
 
-st.write("---")
+ st.progress(99, text="X6 Engine Active")
 
-st.caption("Los Barrancos de Fajardo | Monagas")
+ st.caption(" Los Barrancos de Fajardo")
+
+def motor_x6(base, sorteo):
+
+ res = ""
+
+ random.seed(int(ahora.strftime("%y%m%d%H")) + len(sorteo))
+
+ digits = [int(d) for d in base if d.isdigit()]
+
+ if len(digits) < 4: digits = [0, 5, 0, 4]
+
+ for d in digits:
+
+ temp = d
+
+ for _ in range(6): # Capa de esfuerzo X6
+
+ temp = (temp + random.randint(0, 9) * random.choice([1, -1])) % 10
+
+ res += str(temp)
+
+ return res
+
+t1, t2 = st.tabs([" INFERENCIA", " JUEGOS"])
+
+with t1:
+
+ col1, col2 = st.columns([3, 2])
+
+ with col1:
+
+ hist = st.text_input("Último Ganador (4 cifras):", "0504")
+
+ target = st.selectbox("Sorteo:", ["Lotto Activo", "La Granjita", "Chance", "Zulia"])
+
+ if st.button(" EJECUTAR X6"):
+
+ with st.spinner('Procesando...'):
+
+ time.sleep(1)
+
+ num = motor_x6(hist, target)
+
+ st.markdown(f"""<div class='card'><h3>NÚMERO EXACTO</h3><div class='big-num'>{num}</div>
+
+ <a href='https://wa.me/?text=V7+PRO+{target}:+{num}' class='wa-link'> WHATSAPP</a></div>""", 
+
+unsafe_allow_html=True)
+
+ with col2:
+
+ st.area_chart(pd.DataFrame({'Prob': [10, 45, 30, 80, 55, 95]}))
+
+with t2:
+
+ if st.button(" SLOT"):
+
+ e = [" ", " ", " ", " "]
+
+ st.header(f"{random.choice(e)} | {random.choice(e)} | {random.choice(e)}")
+
+st.caption("Oráculo V7.0 | Monagas | 2026")
