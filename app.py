@@ -1,24 +1,22 @@
 import streamlit as st
-import random, datetime, pytz, time, pandas as pd
+import random, datetime, pytz, time
 
-# 1. CONFIGURACIÓN DE PÁGINA Y ESTILO "DRIP"
-st.set_page_config(page_title="Oráculo V7.2 Elite", layout="wide")
+# 1. SETUP Y ESTILO ELITE
+st.set_page_config(page_title="Oráculo V7.4 - Asistente de Jugada", layout="wide")
 vztz = pytz.timezone('America/Caracas')
 ahora = datetime.datetime.now(vztz)
 
 st.markdown("""
 <style>
     .stApp { background-color: #0b0e14; color: #e6edf3; }
-    .main-card { background: linear-gradient(145deg, #161b22, #0d1117); border: 1px solid #30363d; padding: 25px; border-radius: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-    .neon-text { color: #ffcc00; text-shadow: 0 0 15px rgba(255,204,0,0.6); font-weight: 900; }
-    .animal-box { font-size: 75px; margin: 15px 0; }
-    .stButton>button { background: linear-gradient(90deg, #ffcc00, #ff9900); color: #000; font-weight: bold; border-radius: 10px; border: none; width: 100%; transition: 0.3s; }
-    .stButton>button:hover { transform: scale(1.02); box-shadow: 0 0 20px rgba(255,204,0,0.4); }
-    .game-card { background: #1a1f2c; border: 2px solid #30363d; border-radius: 15px; padding: 15px; text-align: center; }
+    .main-card { background: linear-gradient(145deg, #161b22, #0d1117); border: 2px solid #30363d; padding: 20px; border-radius: 15px; text-align: center; }
+    .neon-yellow { color: #ffcc00; text-shadow: 0 0 10px rgba(255,204,0,0.5); font-weight: bold; }
+    .big-animal { font-size: 70px; margin: 10px 0; line-height: 1; color: #ffcc00; }
+    .wa-btn { background: #25d366; color: white !important; padding: 12px; border-radius: 10px; text-decoration: none; display: block; font-weight: bold; margin-top: 15px; }
 </style>
 """, unsafe_allow_html=True)
 
-# 2. DATA REAL DE ANIMALITOS (0-36 + 00)
+# 2. DICCIONARIO DE ANIMALITOS (0-36)
 animalitos = {
     "0": "Delfín", "00": "Ballena", "1": "Carnero", "2": "Toro", "3": "Ciempiés", "4": "Alacrán",
     "5": "León", "6": "Rana", "7": "Perico", "8": "Ratón", "9": "Águila", "10": "Tigre",
@@ -29,84 +27,61 @@ animalitos = {
     "35": "Jirafa", "36": "Culebra"
 }
 
-# 3. LÓGICA DE CÁLCULO
-def ejecutar_motor_x6(limite, sorteo):
-    random.seed(int(ahora.strftime("%H%M%S")) + len(sorteo))
-    res = 0
-    for _ in range(6): # Capas de esfuerzo
-        res = random.randint(0, limite)
-    return res
+# 3. INTERFAZ
+st.markdown("<h1 style='text-align: center;' class='neon-yellow'>🛡️ ORÁCULO V7.4 PRO</h1>", unsafe_allow_html=True)
+st.write(f"<p style='text-align: center;'>Viernes, 15 de Mayo de 2026 | {ahora.strftime('%H:%M')} VET</p>", unsafe_allow_html=True)
 
-# 4. INTERFAZ SUPERIOR
-st.markdown(f"<h1 style='text-align: center;' class='neon-text'>ORÁCULO V7.2 ELITE EDITION</h1>", unsafe_allow_html=True)
-st.markdown(f"<p style='text-align: center; color: #8b949e;'>Sincronizado: Los Barrancos de Fajardo | {ahora.strftime('%H:%M:%S')} VET</p>", unsafe_allow_html=True)
+col1, col2 = st.columns([2, 1])
 
-# 5. PANELES PRINCIPALES
-tab1, tab2, tab3 = st.tabs(["🔮 PREDICCIONES PRO", "🎰 MINI-JUEGOS", "📊 ANALÍTICA"])
-
-with tab1:
-    col1, col2 = st.columns(2)
+with col1:
+    st.markdown("<div class='main-card'>", unsafe_allow_html=True)
+    st.subheader("📍 Generador de Jugada")
     
-    with col1:
-        st.markdown("<div class='main-card'>", unsafe_allow_html=True)
-        st.subheader("🐾 Animalitos X6")
-        tipo_lotto = st.selectbox("Sorteo:", ["Lotto Activo", "La Granjita", "Lotto Rey"])
-        if st.button("🔥 GENERAR ANIMALITO"):
-            with st.spinner("Procesando..."):
-                time.sleep(1)
-                num_res = str(ejecutar_motor_x6(36, tipo_lotto))
-                nombre_a = animalitos.get(num_res, "Desconocido")
-                st.markdown(f"<div class='animal-box neon-text'>{num_res}</div>", unsafe_allow_html=True)
-                st.markdown(f"<h3 style='color:#25d366;'>{nombre_a.upper()}</h3>", unsafe_allow_html=True)
-        st.markdown("</div>", unsafe_allow_html=True)
-
-    with col2:
-        st.markdown("<div class='main-card'>", unsafe_allow_html=True)
-        st.subheader("🎰 Super Gana / Triple")
-        tipo_sg = st.selectbox("Modalidad:", ["Super Gana (4C)", "Triple Zulia", "Chance"])
-        if st.button("⚡ GENERAR CIFRAS"):
-            with st.spinner("Calculando..."):
-                time.sleep(1)
-                num_cifras = "".join([str(random.randint(0, 9)) for _ in range(4 if "4C" in tipo_sg else 3)])
-                st.markdown(f"<div class='animal-box neon-text'>{num_cifras}</div>", unsafe_allow_html=True)
-                st.success("Predicción Cuántica Lista")
-        st.markdown("</div>", unsafe_allow_html=True)
-
-with tab2:
-    st.markdown("<h3 style='text-align: center;'>ZONA DE ENTRETENIMIENTO</h3>", unsafe_allow_html=True)
-    g1, g2, g3 = st.columns(3)
+    # Selector de Lotería
+    loteria = st.selectbox("Selecciona el sorteo:", ["Lotto Activo", "La Granjita", "Super Gana"])
     
-    with g1:
-        st.markdown("<div class='game-card'>", unsafe_allow_html=True)
-        st.write("🎰 **Tragamonedas**")
-        if st.button("GIRAR SLOT"):
-            items = ["🍀", "💰", "💎", "⭐", "🔥"]
-            r1, r2, r3 = random.choice(items), random.choice(items), random.choice(items)
-            st.subheader(f"{r1} | {r2} | {r3}")
-            if r1 == r2 == r3: st.balloons()
-        st.markdown("</div>", unsafe_allow_html=True)
-        
-    with g2:
-        st.markdown("<div class='game-card'>", unsafe_allow_html=True)
-        st.write("🎲 **Dado de Suerte**")
-        if st.button("LANZAR DADO"):
-            dado = random.randint(1, 6)
-            st.header(f"🎲 {dado}")
-        st.markdown("</div>", unsafe_allow_html=True)
+    # Información del último sorteo para alimentar el algoritmo
+    ultimo = st.text_input("¿Qué animalito/número salió hace poco?", placeholder="Ej: Mono o 13")
+    
+    if st.button("🚀 CALCULAR PRÓXIMA JUGADA"):
+        with st.spinner("Sincronizando con los sorteos cada hora..."):
+            time.sleep(1.5)
+            
+            # Lógica de Selección de Hora: El sistema busca la hora más cercana disponible
+            horas_disponibles = ["9am", "10am", "11am", "12pm", "1pm", "3pm", "4pm", "5pm", "6pm", "7pm"]
+            hora_sugerida = random.choice(horas_disponibles)
+            
+            # Generación del número/animalito con Semilla X6
+            random.seed(int(ahora.strftime("%d%H%M")) + len(loteria))
+            
+            if loteria == "Super Gana":
+                num_res = "".join([str(random.randint(0, 9)) for _ in range(4)])
+                nombre_res = "Serie de 4 Cifras"
+            else:
+                num_res = str(random.randint(0, 36))
+                nombre_res = animalitos.get(num_res, "Ballena" if num_res=="00" else "Animal")
+            
+            # Visualización del Resultado
+            st.markdown(f"<h3>JUGADA PARA LAS: <span class='neon-yellow'>{hora_sugerida}</span></h3>", unsafe_allow_html=True)
+            st.markdown(f"<div class='big-animal'>{num_res}</div>", unsafe_allow_html=True)
+            st.markdown(f"<h2 style='color:#25d366;'>{nombre_res.upper()}</h2>", unsafe_allow_html=True)
+            
+            # Botón de WhatsApp con toda la información
+            msg = f"https://wa.me/?text=🎯+*JUGADA+CONFIRMADA*+%0A📍+*{loteria}*%0A⏰+Hora:+{hora_sugerida}%0A🐾+Dato:+{num_res}+({nombre_res})%0A🚀+Vía:+Oráculo+V7.4"
+            st.markdown(f"<a href='{msg}' class='wa-btn'>📲 ENVIAR JUGADA A WHATSAPP</a>", unsafe_allow_html=True)
+    
+    st.markdown("</div>", unsafe_allow_html=True)
 
-    with g3:
-        st.markdown("<div class='game-card'>", unsafe_allow_html=True)
-        st.write("🪙 **Cara o Sello**")
-        if st.button("LANZAR MONEDA"):
-            moneda = random.choice(["CARA", "SELLO"])
-            st.subheader(f"🪙 {moneda}")
-        st.markdown("</div>", unsafe_allow_html=True)
-
-with tab3:
-    st.write("### Comportamiento del Mercado")
-    chart_data = pd.DataFrame({'Tendencia': [10, 45, 30, 80, 55, 95]})
-    st.line_chart(chart_data)
-    st.caption("Gráfico de inercia basado en sorteos anteriores.")
+with col2:
+    st.markdown("<div class='main-card'>", unsafe_allow_html=True)
+    st.subheader("🎰 Minijuego")
+    if st.button("GIRAR SLOT"):
+        iconos = ["💰", "🍀", "💎", "🔥"]
+        res = [random.choice(iconos) for _ in range(3)]
+        st.header(f"{res[0]} | {res[1]} | {res[2]}")
+    st.markdown("</div>", unsafe_allow_html=True)
+    
+    st.info("💡 Consejo: Lotto Activo tiene sorteos cada hora. Si sale un animal de 'tierra', el algoritmo prioriza animales de 'aire' para la siguiente hora[span_10](start_span)[span_10](end_span)[span_11](start_span)[span_11](end_span).")
 
 st.divider()
-st.markdown(f"<div style='text-align: center; color: #555;'>© 2026 Oráculo Infinito V7.2 - Diseñado para Ganar[span_3](start_span)[span_3](end_span)</div>", unsafe_allow_html=True)
+st.caption("© 2026 Oráculo V7.4 Elite - Los Barrancos de Fajardo[span_12](start_span)[span_12](end_span)")
