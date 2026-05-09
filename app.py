@@ -2,93 +2,87 @@ import streamlit as st
 
 import random, datetime, pytz, pandas as pd
 
-# --- CONFIGURACIÓN CORE (DESBLOQUEADA) ---
+# CONFIGURACIÓN INICIAL
 
-st.set_page_config(page_title="Oráculo Infinito V5.0", layout="wide")
+st.set_page_config(page_title="Oráculo Infinito", layout="wide")
 
 vztz = pytz.timezone('America/Caracas')
 
 ahora = datetime.datetime.now(vztz)
 
-# --- ESTILOS CSS PROFESIONALES ---
+# ESTILOS CSS (Asegúrate de copiar esto tal cual)
 
-st.markdown("""<style>
+st.markdown("""
 
- .stApp { background-color: #0d1117; }
+<style>
 
- .main-card { background: #161b22; border: 1px solid #30363d; padding: 25px; border-radius: 15px; text-align: center; }
+.stApp { background-color: #0d1117; }
 
- .big-num { font-size: 80px; font-weight: 900; color: #ffcc00; margin: 0; }
+.main-card { background: #161b22; border: 1px solid #30363d; padding: 20px; border-radius: 15px; text-align: center; }
 
- .wa-btn { background: #25d366; color: white !important; padding: 12px; border-radius: 10px; text-decoration: none; display: block; font-
+.wa-btn { background: #25d366; color: white !important; padding: 10px; border-radius: 8px; text-decoration: none; display: block; text-align: center; 
 
-weight: bold; text-align: center; }
+font-weight: bold; }
 
- .slot-box { background: #010409; border: 2px dashed #ffcc00; padding: 15px; font-size: 45px; border-radius: 10px; text-align: center; }
+.slot-box { background: #010409; border: 2px dashed #ffcc00; padding: 15px; font-size: 40px; border-radius: 10px; text-align: center; }
 
-</style>""", unsafe_allow_html=True)
+</style>
 
-# --- SIDEBAR: CALCULADORA ---
+""", unsafe_allow_html=True)
+
+# SIDEBAR (Calculadora)
 
 with st.sidebar:
 
- st.image("https://img.icons8.com/color/96/venezuela.png", width=80)
-
  st.title(" PANEL ÉLITE")
 
- st.divider()
-
- st.subheader(" Calculadora")
-
- monto = st.number_input("Inversión (Bs/USD)", value=10.0)
+ monto = st.number_input("Inversión", value=10.0)
 
  tipo = st.radio("Premio:", ["4 Cifras (4500x)", "Terminal (60x)"])
 
  pago = monto * (4500 if "4" in tipo else 60)
 
- st.metric("Total Estimado", f"{pago:,.2f}")
+ st.metric("Premio", f"{pago:,.2f}")
 
- st.success(" MODO PRUEBA: 24/7")
+ st.success(" ESTADO: DESBLOQUEADO 24/7")
 
-# --- CUERPO PRINCIPAL ---
+# CONTENIDO PRINCIPAL
 
-t1, t2, t3 = st.tabs([" PREDICCIONES", " MINI-JUEGOS", " RIFEROS TV"])
+t1, t2, t3 = st.tabs([" PREDICCIONES", " MINI-JUEGOS", " RIFEROS"])
 
 with t1:
 
- col_a, col_b = st.columns([2, 1])
+ col1, col2 = st.columns([2, 1])
 
- with col_a:
+ with col1:
 
- st.markdown("<h2 style='color:#ffcc00;'>NÚCLEO DE PRECISIÓN V5</h2>", unsafe_allow_html=True)
+ st.subheader("NÚCLEO DE PRECISIÓN")
 
  u_res = st.text_input("Último Resultado:", "0504")
 
- sorteo = st.selectbox("Sorteo Objetivo:", ["1:00 PM", "4:00 PM", "10:00 PM"])
+ sorteo = st.selectbox("Sorteo:", ["1:00 PM", "4:00 PM", "10:00 PM"])
 
- if st.button(" CALCULAR AHORA"):
+ if st.button(" CALCULAR"):
 
  random.seed(int(ahora.strftime("%y%m%d") + sorteo[0]))
 
  res = "".join([str((int(d) + random.choice([-1, 0, 1, 2])) % 10) for d in u_res if d.isdigit()])
 
- st.markdown(f"<div class='main-card'><p class='big-num'>{res}</p><p>CONFIANZA: 97.4%</p></div>", unsafe_allow_html=True)
-
- st.markdown(f"<a href='https://wa.me/?text=Jugada+{sorteo}:+{res}' class='wa-btn'> COMPARTIR WHATSAPP</a>", 
+ st.markdown(f"<div class='main-card'><h1 style='color:#ffcc00; font-size:70px;'>{res}</h1><p>CONFIANZA: 98%</p></div>", 
 
 unsafe_allow_html=True)
 
- st.balloons()
+ st.markdown(f"<a href='https://wa.me/?text=Jugada+{sorteo}:+{res}' class='wa-btn'> COMPARTIR</a>", unsafe_allow_html=True)
 
- with col_b:
+ with col2:
 
- st.write("### Gráfica de Inercia")
+ st.write("### Tendencia")
 
- st.line_chart(pd.DataFrame({'T': [10, 22, 18, 35, 45]}))
+ st.line_chart(pd.DataFrame({'T': [10, 20, 15, 30, 45]}))
 
 with t2:
 
- st.subheader(" TRAGAMONEDAS RIFERO")
+ st.subheader(" TRAGAMONEDAS")
 
  if st.button(" GIRAR"):
 
@@ -98,20 +92,8 @@ with t2:
 
  st.markdown(f"<div class='slot-box'>{s1} | {s2} | {s3}</div>", unsafe_allow_html=True)
 
- if s1 == s2 == s3: st.success("¡JACKPOT!")
-
- st.divider()
-
- st.subheader(" DADO DE LA SUERTE")
-
- if st.button(" LANZAR"):
-
- st.header(f"Salió: {random.randint(1, 6)}")
-
 with t3:
 
  st.video("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
 
-st.divider()
-
-st.caption("Oráculo Infinito V5.0 | Monagas, Venezuela")
+st.caption("© 2026 Oráculo Infinito | Los Barrancos ")
