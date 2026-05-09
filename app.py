@@ -20,10 +20,11 @@ st.markdown("""
     .neon-blue { color: #00d4ff; font-weight: 900; font-size: 45px; }
     .percent { color: #25d366; font-weight: bold; font-size: 18px; }
     .slot-box { background: #0d1117; border: 2px gold dashed; padding: 20px; border-radius: 10px; font-size: 40px; }
+    .mirror-box { background: #1a1f2c; border: 1px dashed #00d4ff; padding: 5px; border-radius: 10px; margin-top: 5px; color: #00d4ff; font-size: 14px; }
 </style>
 """, unsafe_allow_html=True)
 
-# 2. BASE DE DATOS CORREGIDA (Pavo = 17)
+# 2. BASE DE DATOS MAESTRA (CORREGIDA)
 animalitos = {
     "0": "Delfín", "00": "Ballena", "1": "Carnero", "2": "Toro", "3": "Ciempiés",
     "4": "Alacrán", "5": "León", "6": "Rana", "7": "Perico", "8": "Ratón",
@@ -35,7 +36,16 @@ animalitos = {
     "34": "Venado", "35": "Jirafa", "36": "Culebra"
 }
 
-# 3. SIDEBAR
+# --- FUNCIÓN DEL PARCHE: LÓGICA DE ESPEJOS ---
+def calcular_espejo(num):
+    if not num.isdigit(): return None
+    if len(num) == 2 and num[0] == num[1]: # Caso 33, 22, 11
+        return f"0{num[0]}" 
+    if len(num) == 2 and num[0] == "0": # Caso 03, 02, 01
+        return f"{num[1]}{num[1]}"
+    return None
+
+# 3. SIDEBAR (CALCULADORA)
 with st.sidebar:
     st.markdown("<h2 style='color:#ffcc00;'>💰 CAJA CHICA</h2>", unsafe_allow_html=True)
     monto = st.number_input("Monto Apostado (Bs/USD):", min_value=1.0, value=10.0)
@@ -45,7 +55,7 @@ with st.sidebar:
     st.divider()
     st.caption("📍 Los Barrancos de Fajardo | 2026")
 
-# 4. CUERPO PRINCIPAL
+# 4. CUERPO PRINCIPAL (TABS)
 tab1, tab2, tab3 = st.tabs(["🔮 PREDICCIÓN ÉLITE", "🎰 MINI-JUEGOS", "📊 ESTADÍSTICAS"])
 
 with tab1:
@@ -53,7 +63,7 @@ with tab1:
     
     col_in, col_h = st.columns([2, 1])
     with col_in:
-        u_res = st.text_input("Dato Semilla (Animal o Número):", placeholder="Ej: Pavo o 17")
+        u_res = st.text_input("Dato Semilla (Animal o Número):", placeholder="Ej: Pescado o 17")
     with col_h:
         h_obj = st.selectbox("Sorteo Objetivo:", ["9am", "10am", "11am", "12pm", "1pm", "4pm", "7pm", "10pm"])
 
@@ -61,58 +71,38 @@ with tab1:
         if u_res:
             with st.spinner("Sincronizando Comparativa..."):
                 time.sleep(1.2)
-                
-                # Verificamos si el usuario busca animalitos o 4 cifras
                 es_animal = "animal" in opcion.lower()
+                seed = sum(ord(c) for c in u_res) + int(h_obj.replace("am","").replace("pm",""))
                 
-                # Crear semilla numérica para el random
-                seed_val = sum(ord(c) for c in u_res) + int(h_obj.replace("am","").replace("pm",""))
-
-                # --- MOTOR DE GENERACIÓN CORREGIDO ---
-                def obtener_resultado(s, modo_animal):
+                def gen(s, mod):
                     random.seed(s)
-                    if modo_animal:
-                        # Extraer lista de números (llaves) y elegir una
-                        lista_numeros = list(animalitos.keys())
-                        res_num = random.choice(lista_numeros)
-                        return res_num, f"{random.randint(88, 98)}%"
-                    else:
-                        # Generar 4 cifras
-                        res_cifras = "".join([str(random.randint(0, 9)) for _ in range(4)])
-                        return res_cifras, f"{random.randint(85, 96)}%"
+                    if mod: 
+                        val = random.choice(list(animalitos.keys()))
+                        return val, f"{random.randint(88, 98)}%"
+                    return "".join([str(random.randint(0, 9)) for _ in range(4)]), f"{random.randint(85, 96)}%"
 
-                # Generar datos para los 3 cuadros
-                v3_val, v3_p = obtener_resultado(seed_val + 7, es_animal)
-                run_val, run_p = obtener_resultado(seed_val + 99, es_animal)
-                pad_val, pad_p = obtener_resultado(seed_val + 123, es_animal)
+                v3_val, v3_p = gen(seed + 7, es_animal)
+                run_val, run_p = gen(seed + 99, es_animal)
+                pad_val, pad_p = gen(seed + 123, es_animal)
 
-                # --- MOSTRAR COMPARATIVA ---
                 st.markdown("### 📊 COMPARATIVA DE ALGORITMOS")
                 c1, c2, c3 = st.columns(3)
                 
-                modelos = [
-                    (c1, "V3 CRIOLLO", v3_val, v3_p),
-                    (c2, "RUNLOT RÉPLICA", run_val, run_p),
-                    (c3, "MÉTODO PADRE", pad_val, pad_p)
-                ]
-
-                for col, title, val, per in modelos:
+                for col, title, val, per in zip([c1, c2, c3], ["V3 CRIOLLO", "RUNLOT RÉPLICA", "MÉTODO PADRE"], [v3_val, run_val, pad_val], [v3_p, run_p, pad_p]):
                     with col:
-                        nombre_animal = animalitos.get(val, "Super Gana") if es_animal else "Cifras"
-                        color_clase = "neon-gold" if es_animal else "neon-blue"
+                        # Aplicar lógica de espejo individualmente
+                        esp = calcular_espejo(val) if es_animal else None
                         st.markdown(f"""
                         <div class='card-pro'>
                             <b>{title}</b><br>
-                            <span class='{color_clase}'>{val}</span><br>
-                            <span style='color:white;'>{nombre_animal}</span><br>
+                            <span class='{"neon-gold" if es_animal else "neon-blue"}'>{val}</span><br>
+                            <span style='color:white;'>{animalitos.get(val, "Super Gana") if es_animal else "Cifras"}</span><br>
                             <span class='percent'>{per} Prob.</span>
+                            {f"<div class='mirror-box'>🪞 Espejo: {esp} ({animalitos.get(esp)})</div>" if esp and esp in animalitos else ""}
                         </div>
                         """, unsafe_allow_html=True)
                 
-                if es_animal:
-                    st.success(f"Dato sugerido para las {h_obj}: {v3_val} ({animalitos.get(v3_val)})")
-                else:
-                    st.success(f"Cifras sugeridas para las {h_obj}: {v3_val}")
+                st.success(f"Dato más pesado para las {h_obj}: {v3_val} ({animalitos.get(v3_val, 'Cifras')})")
         else:
             st.error("Mete un dato para arrancar el búnker.")
 
@@ -130,7 +120,8 @@ with tab2:
 
 with tab3:
     st.subheader("📈 Histórico de Tendencia")
-    st.area_chart(pd.DataFrame({"Probabilidad": [random.randint(70, 99) for _ in range(10)]}))
+    data = pd.DataFrame({"Probabilidad": [random.randint(70, 99) for _ in range(10)]})
+    st.area_chart(data)
 
 st.divider()
-st.caption("© 2026 - El Patrón V10 - Sistema de Inteligencia | Monagas")
+st.caption("© 2026 - El Patrón V10 - Sistema de Inteligencia con Parche de Espejos")
