@@ -1,26 +1,31 @@
 import streamlit as st
-import random
-import datetime
-import pytz
-import pandas as pd
+import random, datetime, pytz, time, pandas as pd
 
-# 1. CONFIGURACIÓN DE HORA Y ESTILO
-st.set_page_config(page_title="ORÁCULO V10 - CORREGIDO", layout="wide")
+# 1. CONFIGURACIÓN Y ESTILO "DRIP" PROFESIONAL
+st.set_page_config(page_title="Oráculo V10 El Patrón", layout="wide")
 vztz = pytz.timezone('America/Caracas')
 ahora = datetime.datetime.now(vztz)
 
 st.markdown("""
 <style>
     .stApp { background-color: #0b0e14; color: #e6edf3; }
-    .main-card { background: #161b22; border: 1px solid #00ff41; padding: 20px; border-radius: 15px; text-align: center; }
-    .big-number { font-size: 80px; font-weight: 900; color: #00ff41; text-shadow: 0 0 20px rgba(0,255,65,0.4); }
-    .sidebar-calc { background: #0d1117; padding: 15px; border-radius: 10px; border: 1px solid #30363d; }
+    [data-testid="stSidebar"] { background-color: #161b22; border-right: 1px solid #30363d; }
+    .stButton>button {
+        background: linear-gradient(90deg, #ffcc00, #ff9900) !important;
+        color: #000 !important; font-weight: 900 !important;
+        border-radius: 12px !important; height: 3.5em !important; border: none !important;
+    }
+    .card-pro { background: #1c2128; border: 1px solid #30363d; padding: 20px; border-radius: 15px; text-align: center; margin-bottom: 10px; }
+    .neon-gold { color: #ffcc00; font-weight: 900; font-size: 45px; text-shadow: 0 0 15px rgba(255,204,0,0.4); }
+    .neon-blue { color: #00d4ff; font-weight: 900; font-size: 45px; }
+    .percent { color: #25d366; font-weight: bold; font-size: 18px; }
+    .slot-box { background: #0d1117; border: 2px gold dashed; padding: 20px; border-radius: 10px; font-size: 40px; }
 </style>
 """, unsafe_allow_html=True)
 
-# 2. TABLA OFICIAL DE ANIMALITOS (CORREGIDA)
-# Se usa un diccionario para que no haya error de índice: Número -> Animal
-tablon_animales = {
+# 2. BASE DE DATOS CORREGIDA (MAESTRA)
+# Se usa un diccionario explícito para evitar errores de conteo
+animalitos = {
     "0": "Delfín", "00": "Ballena", "1": "Carnero", "2": "Toro", "3": "Ciempiés",
     "4": "Alacrán", "5": "León", "6": "Rana", "7": "Perico", "8": "Ratón",
     "9": "Águila", "10": "Tigre", "11": "Gato", "12": "Caballo", "13": "Mono",
@@ -31,56 +36,38 @@ tablon_animales = {
     "34": "Venado", "35": "Jirafa", "36": "Culebra"
 }
 
-# 3. BARRA LATERAL CON CALCULADORA
+# 3. SIDEBAR (CALCULADORA)
 with st.sidebar:
-    st.header("📊 CONTROL BODEGA")
-    st.write("Calculadora de Premios:")
-    monto_juego = st.number_input("Monto Apostado:", min_value=1.0, value=10.0)
-    tipo_premio = st.selectbox("Tipo:", ["Animalito (30x)", "4 Cifras (4500x)"])
-    factor = 30 if "Animal" in tipo_premio else 4500
-    st.metric("Pagar al Cliente:", f"Bs. {monto_juego * factor:,.2f}")
+    st.markdown("<h2 style='color:#ffcc00;'>💰 CAJA CHICA</h2>", unsafe_allow_html=True)
+    monto = st.number_input("Monto Apostado (Bs/USD):", min_value=1.0, value=10.0)
+    opcion = st.selectbox("Tipo de Jugada:", ["Animalito (30x)", "Terminal (60x)", "Super Gana (4500x)"])
+    multi = 30 if "Animal" in opcion else (60 if "Term" in opcion else 4500)
+    st.metric("PAGO ESTIMADO", f"{monto * multi:,.2f}")
     st.divider()
-    st.caption(f"📍 Sorteos: {ahora.strftime('%H:%M:%S')}")
+    st.caption("📍 Los Barrancos de Fajardo | 2026")
 
-# 4. CUERPO PRINCIPAL DEL ORÁCULO V10
-st.markdown("<h1 style='text-align:center; color:#00ff41;'>🔮 ORÁCULO V10 MASTER</h1>", unsafe_allow_html=True)
+# 4. CUERPO PRINCIPAL (TABS)
+tab1, tab2, tab3 = st.tabs(["🔮 PREDICCIÓN ÉLITE", "🎰 MINI-JUEGOS", "📊 ESTADÍSTICAS"])
 
-col_a, col_b = st.columns([2, 1])
+with tab1:
+    st.markdown("<h1 style='text-align:center;'>🛡️ BÚNKER V10: EL PATRÓN</h1>", unsafe_allow_html=True)
+    
+    col_in, col_h = st.columns([2, 1])
+    with col_in:
+        u_res = st.text_input("Dato Semilla (Animal o Número):", placeholder="Ej: Toro o 17")
+    with col_h:
+        h_obj = st.selectbox("Sorteo Objetivo:", ["9am", "10am", "11am", "12pm", "1pm", "4pm", "7pm", "10pm"])
 
-with col_a:
-    st.subheader("Configuración de Inercia")
-    ultimo_animal = st.selectbox("¿Qué animal salió último?", list(tablon_animales.values()))
-    horario = st.selectbox("Sorteo a predecir:", ["1:00 PM", "4:00 PM", "7:00 PM", "10:00 PM"])
-
-    if st.button("⚡ GENERAR PREDICCIÓN DE ALTA FE"):
-        with st.spinner("Analizando patrones de la V10..."):
-            # Lógica de probabilidad basada en semilla de tiempo + nombre
-            random.seed(int(ahora.strftime("%d%m%y")) + len(ultimo_animal))
-            
-            # Seleccionamos el número ganador
-            num_ganador = random.choice(list(tablon_animales.keys()))
-            nom_ganador = tablon_animales[num_ganador]
-            
-            # Generamos 4 cifras basadas en el animal
-            cifras = "".join([str(random.randint(0,9)) for _ in range(4)])
-
-            st.markdown(f"""
-            <div class="main-card">
-                <h3>RESULTADO SUGERIDO</h3>
-                <div class="big-number">{num_ganador}</div>
-                <h2 style="color:white;">{nom_ganador.upper()}</h2>
-                <p style="color:#8b949e;">4 Cifras Recomendadas: <b>{cifras}</b></p>
-                <p style="color:#00ff41;">CONFIANZA DEL SISTEMA: 96.8%</p>
-            </div>
-            """, unsafe_allow_html=True)
-            st.balloons()
-
-with col_b:
-    st.subheader("📈 Tendencias")
-    # Gráfica de simulación de aciertos
-    data = pd.DataFrame({'Día': range(1,6), 'Efectividad': [75, 82, 78, 91, 96]})
-    st.line_chart(data.set_index('Día'))
-    st.info("Nota: La V10 utiliza el histórico de Monagas para ajustar el peso del número.")
-
-st.divider()
-st.caption("© 2026 Sistema Oráculo V10 - Reinaldo Sotillo | Los Barrancos de Fajardo")
+    if st.button("🔥 ACTIVAR MOTORES X6"):
+        if u_res:
+            with st.spinner("Sincronizando Comparativa..."):
+                time.sleep(1.2)
+                # Detección de mercado (Si es número de animalito o nombre)
+                es_animal = any(x in u_res.lower() for x in ["toro", "oso", "pavo", "burro"]) or (u_res.isdigit() and int(u_res) <= 36)
+                
+                # Semilla base
+                seed = sum(ord(c) for c in u_res) + int(h_obj.replace("am","").replace("pm","").replace("12","12"))
+                
+                # --- GENERACIÓN DE 3 ALGORITMOS ---
+                def gen(s, mod):
+                    random.seed(s)
