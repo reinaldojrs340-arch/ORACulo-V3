@@ -14,11 +14,11 @@ st.markdown("""<style>
 
 .card { background: #161b22; border: 1px solid #30363d; padding: 20px; border-radius: 15px; text-align: center; }
 
-.big-num { font-size: 80px; color: #ffcc00; font-weight: 900; text-shadow: 0 0 30px rgba(255,204,0,0.5); }
+.big-num { font-size: 80px; color: #ffcc00; font-weight: 900; }
 
-.wa-link { background: #25d366; color: white !important; padding: 15px; border-radius: 12px; text-decoration: none; 
+.wa-link { background: #25d366; color: white !important; padding: 15px; border-radius: 12px; text-decoration: 
 
-display: block; font-weight: bold; }
+none; display: block; font-weight: bold; }
 
 </style>""", unsafe_allow_html=True)
 
@@ -48,7 +48,7 @@ def motor_x6(base, sorteo):
 
  temp = d
 
- for _ in range(6): # Capa de esfuerzo X6
+ for _ in range(6):
 
  temp = (temp + random.randint(0, 9) * random.choice([1, -1])) % 10
 
