@@ -1,8 +1,8 @@
 import streamlit as st
 import random, datetime, pytz, time
 
-# 1. CONFIGURACIÓN Y ESTILO DRIP ROBUSTO
-st.set_page_config(page_title="Oráculo Multi-Sorteo V9", layout="wide")
+# 1. ESTILO "BÚNKER" ROBUSTO
+st.set_page_config(page_title="Oráculo V9.2 - Doble Semilla", layout="wide")
 vztz = pytz.timezone('America/Caracas')
 ahora = datetime.datetime.now(vztz)
 
@@ -14,10 +14,9 @@ st.markdown("""
         color: #000 !important; font-weight: bold !important;
         border-radius: 10px !important; width: 100% !important;
     }
-    .card-lotto { border-left: 5px solid #ffcc00; background: #161b22; padding: 15px; border-radius: 10px; margin-bottom: 10px; }
-    .card-super { border-left: 5px solid #00d4ff; background: #161b22; padding: 15px; border-radius: 10px; margin-bottom: 10px; }
-    .neon-gold { color: #ffcc00; font-weight: 900; font-size: 25px; }
-    .neon-blue { color: #00d4ff; font-weight: 900; font-size: 25px; }
+    .card-future { border: 2px solid #ffcc00; background: #161b22; padding: 15px; border-radius: 15px; text-align: center; }
+    .neon-gold { color: #ffcc00; font-weight: 900; font-size: 35px; text-shadow: 0 0 10px rgba(255,204,0,0.5); }
+    .label-hora { color: #8b949e; font-size: 14px; font-weight: bold; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -31,70 +30,70 @@ animalitos = {
     "35": "Jirafa", "36": "Culebra"
 }
 
-# 2. MOTORES DE CÁLCULO
-def motor_lotto_activo(dato_base):
-    # Sorteos cada hora de 9am a 7pm + 10pm (Total 11 sorteos)
-    horas = ["9am", "10am", "11am", "12pm", "1pm", "3pm", "4pm", "5pm", "6pm", "7pm", "10pm"]
-    random.seed(sum(ord(c) for c in str(dato_base)) + int(ahora.strftime("%d")))
+# 2. MOTOR DE TENDENCIA (CRUCE DE DATOS)
+def calcular_proyeccion(res_9am, res_1pm, tipo):
+    # Fusionamos ambas semillas para crear una raíz matemática única
+    semilla = sum(ord(c) for c in str(res_9am)) + sum(ord(c) for c in str(res_1pm))
+    random.seed(semilla + int(ahora.strftime("%d%m")))
+    
+    pendientes = ["4pm", "5pm", "6pm", "7pm", "10pm"]
     resultados = {}
-    for h in horas:
-        num = str(random.randint(0, 36))
-        resultados[h] = f"{num} - {animalitos.get(num)}"
+    
+    for hora in pendientes:
+        if tipo == "Animalitos":
+            num = str(random.randint(0, 36))
+            nom = animalitos.get(num, "Ballena" if num=="00" else "Animal")
+            resultados[hora] = f"{num} - {nom}"
+        else:
+            num = "".join([str(random.randint(0, 9)) for _ in range(4)])
+            resultados[hora] = num
+        # Variamos la semilla para el siguiente sorteo
+        random.seed(random.getrandbits(32))
+        
     return resultados
 
-def motor_super_gana(dato_base):
-    # Solo 3 sorteos a partir de la 1pm
-    horas = ["1pm", "4pm", "10pm"]
-    random.seed(sum(ord(c) for c in str(dato_base)) + 99)
-    resultados = {}
-    for h in horas:
-        num = "".join([str(random.randint(0, 9)) for _ in range(4)])
-        resultados[h] = num
-    return resultados
+# 3. INTERFAZ PRÁCTICA
+st.title("🛡️ ANALIZADOR DE TENDENCIA X6")
+st.write(f"Los Barrancos de Fajardo | {ahora.strftime('%H:%M:%S')} VET")
 
-# 3. INTERFAZ
-st.title("🛡️ PANEL INTEGRAL DE SORTEOS")
-st.write(f"Los Barrancos de Fajardo | {ahora.strftime('%d/%m/%Y')}")
+with st.container():
+    col_tipo = st.radio("Selecciona el mercado:", ["Animalitos (Lotto/Granjita)", "Super Gana (4 Cifras)"], horizontal=True)
+    
+    c1, c2 = st.columns(2)
+    with c1:
+        dato_9am = st.text_input("📊 Resultado 9:00 AM:", placeholder="Ej: 14 o 5566")
+    with c2:
+        dato_1pm = st.text_input("📊 Resultado 1:00 PM:", placeholder="Ej: 20 o 2345")
 
-col_config1, col_config2 = st.columns(2)
-with col_config1:
-    entrada_lotto = st.text_input("Dato semilla para Lotto Activo:", placeholder="Ej: 05 o Perro")
-with col_config2:
-    entrada_super = st.text_input("Dato semilla para Super Gana:", placeholder="Ej: 1234")
-
-if st.button("🔥 GENERAR JORNADA COMPLETA"):
-    if entrada_lotto and entrada_super:
-        with st.spinner("Calculando ciclos X6..."):
-            time.sleep(1)
-            res_lotto = motor_lotto_activo(entrada_lotto)
-            res_super = motor_super_gana(entrada_super)
+if st.button("🔥 CALCULAR PROYECCIÓN DE TARDE Y CIERRE"):
+    if dato_9am and dato_1pm:
+        with st.spinner("Analizando inercia numérica entre 9am y 1pm..."):
+            time.sleep(1.5)
+            proyeccion = calcular_proyeccion(dato_9am, dato_1pm, "Animalitos" if "Animalitos" in col_tipo else "SuperGana")
             
-            c1, c2 = st.columns(2)
+            st.markdown("### 🎯 RESULTADOS PROYECTADOS")
             
-            with c1:
-                st.subheader("🐾 LOTTO ACTIVO (9AM - 10PM)")
-                for hora, val in res_lotto.items():
-                    color_hora = "#ffcc00" if hora == "10pm" else "#ffffff"
+            # Mostramos los resultados en una fila elegante
+            cols = st.columns(len(proyeccion))
+            for i, (hora, res) in enumerate(proyeccion.items()):
+                with cols[i]:
+                    destaque = "border-color: #ff4b2b;" if hora == "10pm" else ""
                     st.markdown(f"""
-                    <div class='card-lotto'>
-                        <b style='color:{color_hora}'>{hora.upper()}</b><br>
-                        <span class='neon-gold'>{val}</span>
+                    <div class='card-future' style='{destaque}'>
+                        <span class='label-hora'>{hora.upper()}</span><br>
+                        <span class='neon-gold'>{res.split(' - ')[0]}</span><br>
+                        <small>{res.split(' - ')[1] if ' - ' in res else ''}</small>
                     </div>
                     """, unsafe_allow_html=True)
             
-            with c2:
-                st.subheader("🎰 SUPER GANA (3 SORTEOS)")
-                for hora, val in res_super.items():
-                    st.markdown(f"""
-                    <div class='card-super'>
-                        <b style='color:#00d4ff'>{hora.upper()}</b><br>
-                        <span class='neon-blue'>{val}</span>
-                    </div>
-                    """, unsafe_allow_html=True)
+            # Link de WhatsApp con la comparativa completa
+            texto_wa = f"🎯 *PROYECCIÓN POR TENDENCIA*%0A📍 Basado en 9AM ({dato_9am}) y 1PM ({dato_1pm})%0A"
+            for h, r in proyeccion.items():
+                texto_wa += f"%0A⏰ *{h}:* {r}"
             
-            st.balloons()
+            st.markdown(f"<br><a href='https://wa.me/?text={texto_wa}' style='background:#25d366; color:white; padding:15px; display:block; border-radius:10px; text-decoration:none; text-align:center; font-weight:bold;'>📲 ENVIAR HOJA DE RUTA A GRUPOS</a>", unsafe_allow_html=True)
     else:
-        st.warning("Por favor, llena ambas semillas para calcular.")
+        st.error("Debes ingresar ambos resultados (9am y 1pm) para activar el análisis de tendencia.")
 
 st.divider()
-st.caption("Sistema de predicción horaria optimizado - V9")
+st.caption("© 2026 Oráculo Pro - Algoritmo de Doble Semilla para Cierre de Jornada.")
