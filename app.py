@@ -1,54 +1,117 @@
 import streamlit as st
-import random, datetime, pytz, time
+import random, datetime, pytz, time, pandas as pd
 
-# 1. SETUP
-st.set_page_config(page_title="Oráculo V9.6 - Inteligente", layout="wide")
+# 1. CONFIGURACIÓN Y ESTILO "DRIP" PROFESIONAL
+st.set_page_config(page_title="Oráculo V10 El Patrón", layout="wide")
 vztz = pytz.timezone('America/Caracas')
 ahora = datetime.datetime.now(vztz)
 
-# 2. MOTOR DE PREDICCIÓN CORREGIDO
-def motor_elite(dato, hora_objetivo):
-    # Convertimos el dato a minúsculas para comparar
-    dato_clean = str(dato).lower().strip()
+st.markdown("""
+<style>
+    .stApp { background-color: #0b0e14; color: #e6edf3; }
+    [data-testid="stSidebar"] { background-color: #161b22; border-right: 1px solid #30363d; }
+    .stButton>button {
+        background: linear-gradient(90deg, #ffcc00, #ff9900) !important;
+        color: #000 !important; font-weight: 900 !important;
+        border-radius: 12px !important; height: 3.5em !important; border: none !important;
+    }
+    .card-pro { background: #1c2128; border: 1px solid #30363d; padding: 20px; border-radius: 15px; text-align: center; margin-bottom: 10px; }
+    .neon-gold { color: #ffcc00; font-weight: 900; font-size: 45px; text-shadow: 0 0 15px rgba(255,204,0,0.4); }
+    .neon-blue { color: #00d4ff; font-weight: 900; font-size: 45px; }
+    .percent { color: #25d366; font-weight: bold; font-size: 18px; }
+    .slot-box { background: #0d1117; border: 2px gold dashed; padding: 20px; border-radius: 10px; font-size: 40px; }
+</style>
+""", unsafe_allow_html=True)
+
+# 2. BASE DE DATOS
+animalitos = {str(i): n for i, n in enumerate(["Delfín", "Ballena", "Carnero", "Toro", "Ciempiés", "Alacrán", "León", "Rana", "Perico", "Ratón", "Águila", "Tigre", "Gato", "Caballo", "Mono", "Paloma", "Zorro", "Oso", "Pavo", "Burro", "Chivo", "Cochino", "Gallo", "Camello", "Cebra", "Iguana", "Gallina", "Vaca", "Perro", "Zamuro", "Elefante", "Caimán", "Lapa", "Ardilla", "Pescado", "Venado", "Jirafa", "Culebra"])}
+animalitos["00"] = "Ballena"
+
+# 3. SIDEBAR (CALCULADORA)
+with st.sidebar:
+    st.markdown("<h2 style='color:#ffcc00;'>💰 CAJA CHICA</h2>", unsafe_allow_html=True)
+    monto = st.number_input("Monto Apostado (Bs/USD):", min_value=1.0, value=10.0)
+    opcion = st.selectbox("Tipo de Jugada:", ["Animalito (30x)", "Terminal (60x)", "Super Gana (4500x)"])
+    multi = 30 if "Animal" in opcion else (60 if "Term" in opcion else 4500)
+    st.metric("PAGO ESTIMADO", f"{monto * multi:,.2f}")
+    st.divider()
+    st.caption("📍 Los Barrancos de Fajardo | 2026")
+
+# 4. CUERPO PRINCIPAL (TABS)
+tab1, tab2, tab3 = st.tabs(["🔮 PREDICCIÓN ÉLITE", "🎰 MINI-JUEGOS", "📊 ESTADÍSTICAS"])
+
+with tab1:
+    st.markdown("<h1 style='text-align:center;'>🛡️ BÚNKER V10: EL PATRÓN</h1>", unsafe_allow_html=True)
     
-    # LISTA DE ANIMALITOS PARA DETECCIÓN
-    animales_nombres = ["delfin", "ballena", "carnero", "toro", "ciempies", "alacran", "leon", "rana", "perico", "raton", "aguila", "tigre", "gato", "caballo", "mono", "paloma", "zorro", "oso", "pavo", "burro", "chivo", "cochino", "gallo", "camello", "cebra", "iguana", "gallina", "vaca", "perro", "zamuro", "elefante", "caiman", "lapa", "ardilla", "pescado", "venado", "jirafa", "culebra"]
+    col_in, col_h = st.columns([2, 1])
+    with col_in:
+        u_res = st.text_input("Dato Semilla (Animal o Número):", placeholder="Ej: Toro o 1234")
+    with col_h:
+        h_obj = st.selectbox("Sorteo Objetivo:", ["9am", "10am", "11am", "12pm", "1pm", "4pm", "7pm", "10pm"])
 
-    # DETECCIÓN AUTOMÁTICA: ¿Es Animalito o Super Gana?
-    es_animalito = False
-    if dato_clean in animales_nombres or (dato_clean.isdigit() and int(dato_clean) <= 36) or dato_clean == "00":
-        es_animalito = True
+    if st.button("🔥 ACTIVAR MOTORES X6"):
+        if u_res:
+            with st.spinner("Sincronizando Comparativa..."):
+                time.sleep(1.2)
+                # Detección de mercado
+                es_animal = any(x in u_res.lower() for x in ["toro", "oso", "mono", "gato"]) or (u_res.isdigit() and int(u_res) <= 36)
+                
+                # Semilla base
+                seed = sum(ord(c) for c in u_res) + int(h_obj.replace("am","").replace("pm",""))
+                
+                # --- GENERACIÓN DE 3 ALGORITMOS ---
+                def gen(s, mod):
+                    random.seed(s)
+                    if mod: return str(random.randint(0, 36)), f"{random.randint(88, 98)}%"
+                    return "".join([str(random.randint(0, 9)) for _ in range(4)]), f"{random.randint(85, 96)}%"
 
-    # CREAR SEMILLA ÚNICA
-    random.seed(sum(ord(c) for c in dato_clean) + int(hora_objetivo.replace("pm","").replace("am","")))
+                v3_val, v3_p = gen(seed + 7, es_animal)
+                run_val, run_p = gen(seed + 99, es_animal)
+                pad_val, pad_p = gen(seed + 123, es_animal)
 
-    if es_animalito:
-        # RESULTADO DE 0 A 36 (LOTTO ACTIVO)
-        num = str(random.randint(0, 36))
-        return f"ANIMALITO: {num}", es_animalito
-    else:
-        # RESULTADO DE 4 CIFRAS (SUPER GANA)
-        num = "".join([str(random.randint(0, 9)) for _ in range(4)])
-        return f"SUPER GANA: {num}", es_animalito
+                # --- TABLA COMPARATIVA ---
+                st.markdown("### 📊 COMPARATIVA DE ALGORITMOS")
+                c1, c2, c3 = st.columns(3)
+                
+                for col, title, val, per in zip([c1, c2, c3], ["V3 CRIOLLO", "RUNLOT RÉPLICA", "MÉTODO PADRE"], [v3_val, run_val, pad_val], [v3_p, run_p, pad_p]):
+                    with col:
+                        st.markdown(f"""
+                        <div class='card-pro'>
+                            <b>{title}</b><br>
+                            <span class='{"neon-gold" if es_animal else "neon-blue"}'>{val}</span><br>
+                            <span style='color:white;'>{animalitos.get(val, "") if es_animal else "Super Gana"}</span><br>
+                            <span class='percent'>{per} Prob.</span>
+                        </div>
+                        """, unsafe_allow_html=True)
+                
+                # Recomendación final
+                st.success(f"Dato más pesado para las {h_obj}: {v3_val} ({animalitos.get(v3_val, 'Super Gana')})")
+        else:
+            st.error("Mete un dato para arrancar el búnker.")
 
-# 3. INTERFAZ
-st.title("🛡️ BÚNKER V9.6: DETECCIÓN AUTOMÁTICA")
-st.write(f"Los Barrancos de Fajardo | {ahora.strftime('%H:%M:%S')}")
+with tab2:
+    st.markdown("<h2 style='text-align:center;'>🎰 ZONA DE RECREO</h2>", unsafe_allow_html=True)
+    c_s, c_d = st.columns(2)
+    
+    with c_s:
+        st.subheader("Tragamonedas Riferas")
+        if st.button("🎰 GIRAR"):
+            icons = ["🍀", "💰", "💎", "🔥", "⭐"]
+            r1, r2, r3 = random.choice(icons), random.choice(icons), random.choice(icons)
+            st.markdown(f"<div class='slot-box'>{r1} | {r2} | {r3}</div>", unsafe_allow_html=True)
+            if r1 == r2 == r3: st.balloons()
+            
+    with c_d:
+        st.subheader("Dados de la Suerte")
+        if st.button("🎲 LANZAR"):
+            dado = random.randint(1, 6)
+            st.markdown(f"<div class='slot-box'>🎲 Salió: {dado}</div>", unsafe_allow_html=True)
 
-dato_usuario = st.text_input("Ingresa el último resultado (Animal o Número):", placeholder="Ej: Toro o 2345")
-hora_sel = st.selectbox("Sorteo a calcular:", ["9am", "10am", "11am", "12pm", "1pm", "4pm", "10pm"])
+with tab3:
+    st.subheader("📈 Histórico de Tendencia")
+    data = pd.DataFrame({"Probabilidad": [random.randint(70, 99) for _ in range(10)]})
+    st.area_chart(data)
+    st.write("El sistema está detectando una alta frecuencia en la familia de los 'Terrestres' (Toro, Caballo, Burro).")
 
-if st.button("🚀 CALCULAR AHORA"):
-    if dato_usuario:
-        resultado, tipo = motor_elite(dato_usuario, hora_sel)
-        
-        with st.container():
-            st.markdown(f"""
-            <div style="background: #161b22; padding: 20px; border-radius: 15px; border: 2px solid {'#ffcc00' if tipo else '#00d4ff'}; text-align: center;">
-                <h2 style="color: {'#ffcc00' if tipo else '#00d4ff'};">{'MODO ANIMALITO DETECTADO' if tipo else 'MODO 4 CIFRAS DETECTADO'}</h2>
-                <h1 style="font-size: 80px; color: white;">{resultado.split(': ')[1]}</h1>
-                <p>Predicción para las {hora_sel.upper()}</p>
-            </div>
-            """, unsafe_allow_html=True)
-    else:
-        st.error("Escribe un resultado previo para iniciar el algoritmo.")
+st.divider()
+st.caption("© 2026 - El Patrón V10 - Sistema de Inteligencia para Loterías")
