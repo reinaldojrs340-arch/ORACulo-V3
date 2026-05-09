@@ -10,7 +10,7 @@ vztz = pytz.timezone('America/Caracas')
 
 ahora = datetime.datetime.now(vztz)
 
-# --- ESTILOS CSS ---
+# --- ESTILOS CSS PROFESIONALES ---
 
 st.markdown("""<style>
 
@@ -20,9 +20,9 @@ st.markdown("""<style>
 
  .big-num { font-size: 80px; font-weight: 900; color: #ffcc00; margin: 0; }
 
- .wa-btn { background: #25d366; color: white !important; padding: 12px; border-radius: 10px; text-decoration: none; display: block; font-weight: 
+ .wa-btn { background: #25d366; color: white !important; padding: 12px; border-radius: 10px; text-decoration: none; display: block; font-
 
-bold; text-align: center; }
+weight: bold; text-align: center; }
 
  .slot-box { background: #010409; border: 2px dashed #ffcc00; padding: 15px; font-size: 45px; border-radius: 10px; text-align: center; }
 
@@ -46,9 +46,9 @@ with st.sidebar:
 
  pago = monto * (4500 if "4" in tipo else 60)
 
- st.metric("Premio Estimado", f"{pago:,.2f}")
+ st.metric("Total Estimado", f"{pago:,.2f}")
 
- st.success(" MODO PRUEBA: ACTIVO 24/7")
+ st.success(" MODO PRUEBA: 24/7")
 
 # --- CUERPO PRINCIPAL ---
 
@@ -72,9 +72,11 @@ with t1:
 
  res = "".join([str((int(d) + random.choice([-1, 0, 1, 2])) % 10) for d in u_res if d.isdigit()])
 
- st.markdown(f"<div class='main-card'><p class='big-num'>{res}</p><p>CONFIANZA: 96.8%</p></div>", unsafe_allow_html=True)
+ st.markdown(f"<div class='main-card'><p class='big-num'>{res}</p><p>CONFIANZA: 97.4%</p></div>", unsafe_allow_html=True)
 
- st.markdown(f"<a href='https://wa.me/?text=Jugada+{sorteo}:+{res}' class='wa-btn'> WHATSAPP</a>", unsafe_allow_html=True)
+ st.markdown(f"<a href='https://wa.me/?text=Jugada+{sorteo}:+{res}' class='wa-btn'> COMPARTIR WHATSAPP</a>", 
+
+unsafe_allow_html=True)
 
  st.balloons()
 
@@ -86,7 +88,7 @@ with t1:
 
 with t2:
 
- st.subheader(" TRAGAMONEDAS RIFERO (DEMO)")
+ st.subheader(" TRAGAMONEDAS RIFERO")
 
  if st.button(" GIRAR"):
 
